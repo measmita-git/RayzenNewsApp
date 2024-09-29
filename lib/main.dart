@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:news_app/screens/splash_screen.dart';
-
+import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:news_app/screens/feed_page.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'controller/shared_preferences.dart';
 
@@ -34,8 +34,16 @@ class MyApp extends StatelessWidget {
               if (isFirstSnapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               } else {
-                bool isFirst = isFirstSnapshot.data ?? true;
-                return SplashScreen(); // Modify this based on isFirst if needed
+
+                return AnimatedSplashScreen(
+                  splash: 'assets/logo.png',
+                  splashIconSize: 200,
+                  nextScreen: const NewsScreen(),
+                  splashTransition: SplashTransition.scaleTransition,
+                  backgroundColor: const Color.fromARGB(255, 240, 249, 245),
+                  duration: 4000,
+
+                ); // Modify this based on isFirst if needed
               }
             },
           ),
