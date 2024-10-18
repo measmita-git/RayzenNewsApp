@@ -52,6 +52,7 @@ class HeadlinesWidget extends StatelessWidget {
               alignment: Alignment.center,
               children: [
                 Container(
+
                   height:  height * 0.6,
                   width:  width * .9,
                   padding: EdgeInsets.symmetric(
@@ -70,6 +71,7 @@ class HeadlinesWidget extends StatelessWidget {
                 Positioned(
                   bottom: 20,
                   child: Card(
+
                     elevation: 5,
                     color: Colors.white,
                     shape: RoundedRectangleBorder(
