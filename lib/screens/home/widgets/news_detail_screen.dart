@@ -1,37 +1,37 @@
-
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import '../../../bloc/news_bloc.dart';
+import '../../../bloc/news_event.dart';
+import '../../../bloc/news_states.dart';
+import '../../../model/categories_new_model.dart';
 
 
 class NewsDetailScreen extends StatefulWidget {
-  String newsImage;
-  String newsTitle;
-  String newsDate;
-  String newsAuthor;
-  String newsDesc;
-  String newsContent;
-  String newsSource;
-  NewsDetailScreen(this.newsImage, this.newsTitle, this.newsDate,
-      this.newsAuthor, this.newsDesc, this.newsContent, this.newsSource);
+  final String newsImage;
+  final String newsTitle;
+  final String newsDate;
+  final String newsAuthor;
+  final String newsDesc;
+  final String newsContent;
+  final String newsSourceName; // Assuming it's a name
+  // final String newsSourceId; // If you have an ID
 
+  NewsDetailScreen(this.newsImage, this.newsTitle, this.newsDate,
+      this.newsAuthor, this.newsDesc, this.newsContent, this.newsSourceName, );
 
   @override
   State<NewsDetailScreen> createState() => _NewsDetailScreenState();
 }
 
 class _NewsDetailScreenState extends State<NewsDetailScreen> {
-
-  final format = new DateFormat('MMMM dd,yyyy');
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    print(widget.newsDesc);
-  }
+  final format = DateFormat('MMMM dd, yyyy');
 
   @override
   Widget build(BuildContext context) {
@@ -44,31 +44,61 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: Colors.grey[600],
+          ),
+        ),
+        actions: [
+          BlocBuilder<NewsBloc, NewsState>(
+            builder: (context, state) {
+              // Check if the article is a favorite
+              bool isFavorite = state.favoritesList.any((article) => article.title == widget.newsTitle);
+
+              return IconButton(
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: Colors.red,
+                ),
+                onPressed: () {
+                  Source source = Source(
+                    // id: widget.newsSourceId, // Set the ID if applicable
+                    name: widget.newsSourceName, // Set the name
+                  );
+
+                  Articles article = Articles(
+                    title: widget.newsTitle,
+                    urlToImage: widget.newsImage,
+                    source: source, // Use the Source instance here
+                  );
+
+                  if (isFavorite) {
+                    context.read<NewsBloc>().add(RemoveFromFavorites(article));
+                  } else {
+                    context.read<NewsBloc>().add(AddToFavorites(article));
+                  }
+                },
+              );
             },
-            icon: Icon(
-              Icons.arrow_back_ios,
-              color: Colors.grey[600],
-            )),
+          ),
+        ],
       ),
       body: Stack(
         children: [
           Container(
-            child: Container(
-              // padding: EdgeInsets.symmetric(horizontal: Kheight * 0.02),
-              height: Kheight * 0.45,
-              width: Kwidth,
-              child: ClipRRect(
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30)),
-                child: CachedNetworkImage(
-                  imageUrl: "${widget.newsImage}",
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => CircularProgressIndicator(),
-                  errorWidget: (context, url, error) => new Icon(Icons.error),
-                ),
+            height: Kheight * 0.45,
+            width: Kwidth,
+            child: ClipRRect(
+              borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+              child: CachedNetworkImage(
+                imageUrl: widget.newsImage,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => CircularProgressIndicator(),
+                errorWidget: (context, url, error) => Icon(Icons.error),
               ),
             ),
           ),
@@ -79,11 +109,10 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
             decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30))),
+                    topLeft: Radius.circular(30), topRight: Radius.circular(30))),
             child: ListView(
               children: [
-                Text('${widget.newsTitle}',
+                Text(widget.newsTitle,
                     style: GoogleFonts.poppins(
                         fontSize: 20,
                         color: Colors.black87,
@@ -93,22 +122,16 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Container(
-                        child: Text(
-                          '${widget.newsSource}',
-                          softWrap: true,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              color: Colors.blueAccent,
-                              fontWeight: FontWeight.w600),
-                        ),
+                      child: Text(
+                        widget.newsSourceName,
+                        style: GoogleFonts.poppins(
+                            fontSize: 13,
+                            color: Colors.blueAccent,
+                            fontWeight: FontWeight.w600),
                       ),
                     ),
                     Text(
-                      '${format.format(dateTime)}',
-                      softWrap: true,
-                      overflow: TextOverflow.ellipsis,
+                      format.format(dateTime),
                       style: GoogleFonts.poppins(
                           fontSize: 12,
                           color: Colors.black87,
@@ -116,26 +139,12 @@ class _NewsDetailScreenState extends State<NewsDetailScreen> {
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: Kheight * 0.03,
-                ),
-                Text('${widget.newsDesc}',
+                SizedBox(height: Kheight * 0.03),
+                Text(widget.newsDesc,
                     style: GoogleFonts.poppins(
                         fontSize: 15,
                         color: Colors.black87,
                         fontWeight: FontWeight.w500)),
-                SizedBox(
-                  height: Kheight * 0.03,
-                ),
-                // Text('${widget.newsContent}',
-                //     maxLines: 20,
-                //     style: GoogleFonts.poppins(
-                //         fontSize: 15,
-                //         color: Colors.black87,
-                //         fontWeight: FontWeight.w500)),
-                SizedBox(
-                  height: Kheight * 0.03,
-                ),
               ],
             ),
           )

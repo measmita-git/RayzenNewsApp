@@ -51,7 +51,6 @@ dependencies:
   device_preview: ^1.0.0
   flutter_screenutil: ^5.6.0
   animated_splash_screen: ^1.2.0
-  webview_flutter: ^4.9.0
   riverpod: ^2.5.1
   provider: ^6.1.2
   flutter_spinkit: ^5.2.1
@@ -60,6 +59,7 @@ dependencies:
   equatable:
   bloc:
   flutter_bloc: ^8.0.1
+  flutter_inappwebview: ^6.1.5
 
 
 dev_dependencies:

@@ -44,6 +44,7 @@ class HeadlinesWidget extends StatelessWidget {
                 newsAuthor,
                 newsDesc,
                 newsContent,
+
                 newsSource
             )));
           },

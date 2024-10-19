@@ -4,10 +4,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:news_app/screens/home/widgets/user_selection_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../bloc/news_bloc.dart';
 import '../../../bloc/news_event.dart';
 import 'cateogires_screen.dart';
+import 'favorite_news_screen.dart';
 
 
 
@@ -18,6 +21,18 @@ class HomeAppBarWidget extends StatelessWidget {
    HomeAppBarWidget({Key? key}) : super(key: key);
 
   String name = 'bbc-news' ;
+
+   // Function to handle logout
+   void _logout(BuildContext context) async {
+     final prefs = await SharedPreferences.getInstance();
+     await prefs.remove('userId');  // Remove the stored userId
+
+     // Navigate to the UserSelectionScreen after logout
+     Navigator.pushReplacement(
+       context,
+       MaterialPageRoute(builder: (context) => const UserSelectionScreen()),
+     );
+   }
 
   @override
   Widget build(BuildContext context) {
@@ -68,8 +83,27 @@ class HomeAppBarWidget extends StatelessWidget {
                 child: Text('Al-Jazeera News'),
               ),
             ]
-        )
+        ),
+        IconButton(
+          icon: Icon(Icons.bookmark, color: Colors.blueAccent),
+          onPressed: () {
+            // Navigate to Favorite News Screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => FavoriteNewsScreen()),
+            );
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.logout),
+          onPressed: () {
+            // Call the logout function when logout button is pressed
+            _logout(context);
+          },
+        ),
+
       ],
+
     );
   }
 }
